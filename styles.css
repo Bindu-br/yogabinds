@@ -398,7 +398,7 @@ section {
 
 .about-image {
   width: 100%;
-  height: 500px;
+  aspect-ratio: 3 / 2;
   background: linear-gradient(135deg, var(--green-lightest), var(--green-bg));
   display: flex;
   align-items: center;
@@ -410,7 +410,7 @@ section {
 .about-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 /* --- Philosophy Section --- */
