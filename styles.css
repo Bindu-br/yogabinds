@@ -480,8 +480,8 @@ section {
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('gallery/12.JPG');
-  background-size: cover;
+  background-image: url('gallery/11.JPG');
+  background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
   opacity: 0.20;
