@@ -481,8 +481,8 @@ section {
   right: 0;
   bottom: 0;
   background-image: url('gallery/11.JPG');
-  background-size: contain;
-  background-position: center 30%;
+  background-size: cover;
+  background-position: center center;
   background-repeat: no-repeat;
   opacity: 0.12;
   pointer-events: none;
