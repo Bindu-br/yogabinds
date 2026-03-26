@@ -484,7 +484,7 @@ section {
   background-size: cover;
   background-position: 90% center;
   background-repeat: no-repeat;
-  opacity: 0.06;
+  opacity: 0.20;
   pointer-events: none;
   z-index: 0;
 }
