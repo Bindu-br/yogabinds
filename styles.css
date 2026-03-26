@@ -280,6 +280,38 @@ section {
   z-index: 1;
 }
 
+/* --- Hero Slide-in Animation --- */
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.hero-content .hero-announcement {
+  animation: slideInFromLeft 0.8s ease-out 0.1s both;
+}
+
+.hero-content .hero-label {
+  animation: slideInFromLeft 0.8s ease-out 0.25s both;
+}
+
+.hero-content h1 {
+  animation: slideInFromLeft 0.9s ease-out 0.4s both;
+}
+
+.hero-content .hero-subtitle {
+  animation: slideInFromLeft 0.8s ease-out 0.6s both;
+}
+
+.hero-content .hero-actions {
+  animation: slideInFromLeft 0.8s ease-out 0.8s both;
+}
+
 .hero-announcement {
   display: block;
   font-family: var(--font-body);
