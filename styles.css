@@ -477,12 +477,12 @@ section {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
+  right: -10%;
   bottom: 0;
+  width: 60%;
   background-image: url('gallery/11.JPG');
-  background-size: cover;
-  background-position: 90% center;
+  background-size: contain;
+  background-position: center right;
   background-repeat: no-repeat;
   opacity: 0.06;
   pointer-events: none;
