@@ -166,6 +166,14 @@ section {
   color: var(--text-primary);
 }
 
+.navbar-links a.btn-primary {
+  color: var(--green-lightest);
+}
+
+.navbar-links a.btn-primary:hover {
+  color: var(--white);
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
