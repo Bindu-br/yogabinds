@@ -833,8 +833,25 @@ section {
 }
 
 .feedback-form textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  border: 1.5px solid var(--border);
+  background: var(--green-bg-soft);
+  color: var(--text-primary);
+  transition: border-color 0.3s ease;
+  outline: none;
   resize: vertical;
-  min-height: 120px;
+  min-height: 140px;
+}
+
+.feedback-form textarea:focus {
+  border-color: var(--green-mid);
+}
+
+.feedback-form textarea::placeholder {
+  color: var(--text-light);
 }
 
 .feedback-section .success-message {
