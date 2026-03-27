@@ -62,7 +62,7 @@
             Thank you! Your booking has been confirmed. I'll be in touch with class details shortly.
           </div>
 
-          <form onsubmit="handlePayment(event)" id="paymentForm">
+          <form id="paymentForm">
 
             <!-- Personal Details -->
             <div class="form-section-title">Personal Details</div>
@@ -192,29 +192,28 @@
   </footer>
 
   <script src="auth.js"></script>
-  <script>
+  <script type="module">
+    import { saveBooking } from './firebase.js';
+
     // ---- Read Plan from URL ----
-    document.addEventListener('DOMContentLoaded', function () {
-      var params = new URLSearchParams(window.location.search);
-      var plan = params.get('plan');
+    var params = new URLSearchParams(window.location.search);
+    var plan = params.get('plan');
 
-      var titleEl = document.getElementById('planTitle');
-      var priceEl = document.getElementById('planPrice');
-      var descEl = document.getElementById('planDesc');
-      var summaryPlan = document.getElementById('summaryPlan');
-      var summaryClasses = document.getElementById('summaryClasses');
-      var summaryTotal = document.getElementById('summaryTotal');
+    var titleEl = document.getElementById('planTitle');
+    var priceEl = document.getElementById('planPrice');
+    var descEl = document.getElementById('planDesc');
+    var summaryPlan = document.getElementById('summaryPlan');
+    var summaryClasses = document.getElementById('summaryClasses');
+    var summaryTotal = document.getElementById('summaryTotal');
 
-      if (plan === 'casual') {
-        titleEl.textContent = 'Casual Class';
-        priceEl.innerHTML = '$14.99 <span>AUD</span>';
-        descEl.textContent = 'One full yoga class. Drop in at your convenience.';
-        summaryPlan.textContent = 'Casual Class';
-        summaryClasses.textContent = '1';
-        summaryTotal.textContent = '$14.99 AUD';
-      }
-      // Default is intro plan (already set in HTML)
-    });
+    if (plan === 'casual') {
+      titleEl.textContent = 'Casual Class';
+      priceEl.innerHTML = '$14.99 <span>AUD</span>';
+      descEl.textContent = 'One full yoga class. Drop in at your convenience.';
+      summaryPlan.textContent = 'Casual Class';
+      summaryClasses.textContent = '1';
+      summaryTotal.textContent = '$14.99 AUD';
+    }
 
     // ---- Card Number Formatting ----
     document.getElementById('cardNumber').addEventListener('input', function (e) {
@@ -234,16 +233,40 @@
     });
 
     // ---- Payment Handler ----
-    function handlePayment(e) {
+    document.getElementById('paymentForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      // Show success message
-      document.getElementById('paymentSuccess').classList.add('show');
-      document.getElementById('paymentForm').style.display = 'none';
+      var submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Processing...';
 
-      // Scroll to top of form area
-      document.querySelector('.payment-form-container').scrollIntoView({ behavior: 'smooth' });
-    }
+      var bookingData = {
+        plan: plan || 'intro',
+        fullName: document.getElementById('fullName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        postcode: document.getElementById('postcode').value,
+        studentType: document.getElementById('studentType').value,
+        // Note: card details are NOT stored for security — only last 4 digits for reference
+        cardLast4: document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4),
+        amount: plan === 'casual' ? '$14.99 AUD' : '$29.99 AUD'
+      };
+
+      var saved = await saveBooking(bookingData);
+
+      if (saved) {
+        document.getElementById('paymentSuccess').classList.add('show');
+        document.getElementById('paymentForm').style.display = 'none';
+        document.querySelector('.payment-form-container').scrollIntoView({ behavior: 'smooth' });
+      } else {
+        alert('Something went wrong. Please try again.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm & Pay';
+      }
+    });
   </script>
 </body>
 </html>

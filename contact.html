@@ -54,7 +54,7 @@
         </div>
         <div class="contact-form">
           <div class="success-message" id="contactSuccess">Thank you! Your message has been sent. I'll get back to you soon.</div>
-          <form onsubmit="handleContact(event)">
+          <form id="contactForm">
             <div class="form-group">
               <label for="contactName">Your Name</label>
               <input type="text" id="contactName" placeholder="Full name" required />
@@ -99,15 +99,35 @@
   </footer>
 
   <script src="auth.js"></script>
-  <script>
-    function handleContact(e) {
+  <script type="module">
+    import { saveContact } from './firebase.js';
+
+    document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      document.getElementById('contactSuccess').classList.add('show');
-      e.target.reset();
-      setTimeout(function () {
-        document.getElementById('contactSuccess').classList.remove('show');
-      }, 5000);
-    }
+
+      var name = document.getElementById('contactName').value;
+      var email = document.getElementById('contactEmail').value;
+      var message = document.getElementById('contactMessage').value;
+
+      var submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
+
+      var saved = await saveContact(name, email, message);
+
+      if (saved) {
+        document.getElementById('contactSuccess').classList.add('show');
+        e.target.reset();
+        setTimeout(function () {
+          document.getElementById('contactSuccess').classList.remove('show');
+        }, 5000);
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Message';
+    });
   </script>
 </body>
 </html>

@@ -231,7 +231,7 @@
       <p class="feedback-intro">
         I value your experience. If you have any feedback, suggestions, or kind words, please share them below.
       </p>
-      <form class="feedback-form" id="feedbackForm" onsubmit="handleFeedback(event)">
+      <form class="feedback-form" id="feedbackForm">
         <div class="form-row feedback-row">
           <div class="form-group">
             <label for="feedbackName">Your Name</label>
@@ -277,24 +277,34 @@
   </footer>
 
   <script src="auth.js"></script>
-  <script>
-    function handleFeedback(e) {
+  <script type="module">
+    import { saveFeedback } from './firebase.js';
+
+    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       var name = document.getElementById('feedbackName').value;
       var email = document.getElementById('feedbackEmail').value;
       var message = document.getElementById('feedbackMessage').value;
 
-      // Open mailto link to send feedback via email (email to be configured)
-      var subject = encodeURIComponent('YogaBinds Feedback from ' + name);
-      var body = encodeURIComponent('Name: ' + name + '\nEmail: ' + email + '\n\nFeedback:\n' + message);
-      window.location.href = 'mailto:hello@yogabinds.com?subject=' + subject + '&body=' + body;
+      var submitBtn = this.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
 
-      document.getElementById('feedbackSuccess').classList.add('show');
-      document.getElementById('feedbackForm').reset();
-      setTimeout(function () {
-        document.getElementById('feedbackSuccess').classList.remove('show');
-      }, 5000);
-    }
+      var saved = await saveFeedback(name, email, message);
+
+      if (saved) {
+        document.getElementById('feedbackSuccess').classList.add('show');
+        document.getElementById('feedbackForm').reset();
+        setTimeout(function () {
+          document.getElementById('feedbackSuccess').classList.remove('show');
+        }, 5000);
+      } else {
+        alert('Something went wrong. Please try again.');
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Send Feedback';
+    });
   </script>
 </body>
 </html>
