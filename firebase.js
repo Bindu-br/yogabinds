@@ -15,14 +15,16 @@ import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.g
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
 
 // ---- YOUR FIREBASE CONFIG ----
+// Replace the placeholder values below with your actual Firebase credentials.
+// Never commit real API keys to a public repository.
 const firebaseConfig = {
-  apiKey: "AIzaSyBdkU-JwarklAHvsJrpiT8-fyUa2flqWnE",
-  authDomain: "yogabinds-faa6f.firebaseapp.com",
-  projectId: "yogabinds-faa6f",
-  storageBucket: "yogabinds-faa6f.firebasestorage.app",
-  messagingSenderId: "149493449941",
-  appId: "1:149493449941:web:0a3a8614c73c2bfc71ce5c",
-  measurementId: "G-2PXFN0XL1R"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+  measurementId: "YOUR_MEASUREMENT_ID"
 };
 
 // Initialize Firebase
