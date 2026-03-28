@@ -35,7 +35,7 @@
         <div class="payment-summary">
           <span class="section-label">Your Selection</span>
           <h2 id="planTitle">Introductory Offer</h2>
-          <div class="payment-price" id="planPrice">$29.99 <span>AUD</span></div>
+          <div class="payment-price" id="planPrice"><span class="currency">$</span>29.99 <span>AUD</span></div>
           <p id="planDesc">3 yoga classes, valid for 3 weeks from the date of purchase. Enjoy your journey.</p>
           <div class="payment-summary-details">
             <div class="summary-row">
@@ -197,7 +197,7 @@
 
     if (plan === 'casual') {
       titleEl.textContent = 'Casual Class';
-      priceEl.innerHTML = '$14.99 <span>AUD</span>';
+      priceEl.innerHTML = '<span class="currency">$</span>14.99 <span>AUD</span>';
       descEl.textContent = '1 yoga class, valid for 1 week from the date of purchase. Enjoy the experience.';
       summaryPlan.textContent = 'Casual Class';
       summaryClasses.textContent = '1';
