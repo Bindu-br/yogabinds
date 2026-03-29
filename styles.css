@@ -910,13 +910,15 @@ section {
 
 .account-choice .btn {
   flex: 1;
-  padding: 12px 16px;
+  padding: 14px 16px;
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
   background-color: transparent;
   color: var(--text-primary);
   border: 1.5px solid var(--green-border);
+  border-radius: 0;
+  text-align: center;
 }
 
 .account-choice .btn:hover {
