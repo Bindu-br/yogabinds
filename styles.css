@@ -914,6 +914,13 @@ section {
   font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--green-border);
+}
+
+.account-choice .btn:hover {
+  border-color: var(--green-mid);
 }
 
 .account-choice .btn.active {
