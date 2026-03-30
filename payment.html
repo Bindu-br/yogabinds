@@ -217,17 +217,39 @@
     }
 
     // Restrict date pickers to Thursdays only using Flatpickr
-    var dateIds = ['classDate1', 'classDate2', 'classDate3'];
-    dateIds.forEach(function(id) {
-      flatpickr('#' + id, {
-        minDate: 'today',
-        dateFormat: 'Y-m-d',
-        enable: [
-          function(date) {
-            return date.getDay() === 4; // Thursday only
-          }
-        ]
-      });
+    var fp1 = flatpickr('#classDate1', {
+      minDate: 'today',
+      dateFormat: 'Y-m-d',
+      enable: [function(date) { return date.getDay() === 4; }],
+      onChange: function(selectedDates) {
+        if (selectedDates.length > 0) {
+          // Set class 2 min to next Thursday after class 1
+          var nextDay = new Date(selectedDates[0]);
+          nextDay.setDate(nextDay.getDate() + 1);
+          fp2.set('minDate', nextDay);
+          fp2.clear();
+          fp3.clear();
+        }
+      }
+    });
+    var fp2 = flatpickr('#classDate2', {
+      minDate: 'today',
+      dateFormat: 'Y-m-d',
+      enable: [function(date) { return date.getDay() === 4; }],
+      onChange: function(selectedDates) {
+        if (selectedDates.length > 0) {
+          // Set class 3 min to next Thursday after class 2
+          var nextDay = new Date(selectedDates[0]);
+          nextDay.setDate(nextDay.getDate() + 1);
+          fp3.set('minDate', nextDay);
+          fp3.clear();
+        }
+      }
+    });
+    var fp3 = flatpickr('#classDate3', {
+      minDate: 'today',
+      dateFormat: 'Y-m-d',
+      enable: [function(date) { return date.getDay() === 4; }]
     });
 
     // ---- Account Choice ----
