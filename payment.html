@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Book Your Class | YogaBinds</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 </head>
 <body>
 
@@ -214,21 +216,17 @@
       document.getElementById('classDate3').required = true;
     }
 
-    // Set minimum date to today and restrict to Thursdays only
-    var today = new Date().toISOString().split('T')[0];
-    var dateInputs = [
-      document.getElementById('classDate1'),
-      document.getElementById('classDate2'),
-      document.getElementById('classDate3')
-    ];
-    dateInputs.forEach(function(input) {
-      input.setAttribute('min', today);
-      input.addEventListener('change', function() {
-        var selected = new Date(this.value + 'T00:00:00');
-        if (selected.getDay() !== 4) {
-          alert('Classes are only available on Thursdays. Please select a Thursday.');
-          this.value = '';
-        }
+    // Restrict date pickers to Thursdays only using Flatpickr
+    var dateIds = ['classDate1', 'classDate2', 'classDate3'];
+    dateIds.forEach(function(id) {
+      flatpickr('#' + id, {
+        minDate: 'today',
+        dateFormat: 'Y-m-d',
+        enable: [
+          function(date) {
+            return date.getDay() === 4; // Thursday only
+          }
+        ]
       });
     });
 
