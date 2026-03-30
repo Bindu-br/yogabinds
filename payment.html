@@ -101,6 +101,23 @@
 
 
 
+            <!-- Class Dates -->
+            <div class="form-section-title">Choose Your Class Date<span id="datePluralLabel">s</span></div>
+            <p style="font-size: 0.9rem; color: var(--green-dark); margin: -0.5rem 0 1rem;">Classes are held every Thursday at 6 PM.</p>
+
+            <div class="form-group">
+              <label for="classDate1">Class 1</label>
+              <input type="date" id="classDate1" required />
+            </div>
+            <div class="form-group intro-only-date" id="classDate2Group">
+              <label for="classDate2">Class 2</label>
+              <input type="date" id="classDate2" />
+            </div>
+            <div class="form-group intro-only-date" id="classDate3Group">
+              <label for="classDate3">Class 3</label>
+              <input type="date" id="classDate3" />
+            </div>
+
             <!-- Payment Details -->
             <div class="form-section-title">Payment Details</div>
 
@@ -186,7 +203,34 @@
       summaryPlan.textContent = 'Casual Class';
       summaryClasses.textContent = '1';
       summaryTotal.textContent = '$14.99 AUD';
+
+      // Hide extra date fields for casual plan
+      document.getElementById('classDate2Group').style.display = 'none';
+      document.getElementById('classDate3Group').style.display = 'none';
+      document.getElementById('datePluralLabel').style.display = 'none';
+    } else {
+      // Intro plan: require all 3 dates
+      document.getElementById('classDate2').required = true;
+      document.getElementById('classDate3').required = true;
     }
+
+    // Set minimum date to today and restrict to Thursdays only
+    var today = new Date().toISOString().split('T')[0];
+    var dateInputs = [
+      document.getElementById('classDate1'),
+      document.getElementById('classDate2'),
+      document.getElementById('classDate3')
+    ];
+    dateInputs.forEach(function(input) {
+      input.setAttribute('min', today);
+      input.addEventListener('change', function() {
+        var selected = new Date(this.value + 'T00:00:00');
+        if (selected.getDay() !== 4) {
+          alert('Classes are only available on Thursdays. Please select a Thursday.');
+          this.value = '';
+        }
+      });
+    });
 
     // ---- Account Choice ----
     var createAccountBtn = document.getElementById('createAccountBtn');
@@ -257,6 +301,13 @@
         email: document.getElementById('email').value,
         phone: document.getElementById('phone').value,
         accountCreated: isCreatingAccount,
+        classDates: plan === 'casual'
+          ? [document.getElementById('classDate1').value]
+          : [
+              document.getElementById('classDate1').value,
+              document.getElementById('classDate2').value,
+              document.getElementById('classDate3').value
+            ],
         // Note: card details are NOT stored for security — only last 4 digits for reference
         cardLast4: document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4),
         amount: plan === 'casual' ? '$14.99 AUD' : '$29.99 AUD'
