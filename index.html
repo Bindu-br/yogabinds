@@ -132,6 +132,12 @@
       var email = document.getElementById('feedbackEmail').value;
       var message = document.getElementById('feedbackMessage').value;
 
+      // Input validation
+      if (name.length > 100 || email.length > 200 || message.length > 2000) {
+        alert('Input too long. Please shorten your submission.');
+        return;
+      }
+
       var submitBtn = this.querySelector('button[type="submit"]');
       submitBtn.disabled = true;
       submitBtn.textContent = 'Sending...';

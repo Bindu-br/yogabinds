@@ -335,27 +335,64 @@
   <script type="module">
     import { getBookings, getFeedback, getContacts } from './firebase.js';
 
-    // ---- Credentials (hashed for basic protection) ----
-    var ADMIN_USER = 'srts16';
-    var ADMIN_PASS = 'ifgt16';
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // ---- Credentials (SHA-256 hashed) ----
+    var ADMIN_USER_HASH = '1e85c4464bf5466e72fdd636eebdd11add8ec93ac2e62ada818e2e5f0da4d777';
+    var ADMIN_PASS_HASH = '09d6b9e904af1183e2c60c24eeb735dd1c2205638afbef26745254f9ab5fb297';
+
+    async function hashString(str) {
+      var encoder = new TextEncoder();
+      var data = encoder.encode(str);
+      var hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      var hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(function(b) { return b.toString(16).padStart(2, '0'); }).join('');
+    }
 
     var loginForm = document.getElementById('loginForm');
     var loginError = document.getElementById('loginError');
     var adminLogin = document.getElementById('adminLogin');
     var adminDashboard = document.getElementById('adminDashboard');
 
-    // Check if already logged in
-    if (sessionStorage.getItem('yogabinds_admin') === 'true') {
+    // Check session with 30-minute expiration
+    var SESSION_TIMEOUT = 30 * 60 * 1000;
+    var adminSession = sessionStorage.getItem('yogabinds_admin');
+    var adminTime = parseInt(sessionStorage.getItem('yogabinds_admin_time') || '0');
+    if (adminSession === 'true' && (Date.now() - adminTime) < SESSION_TIMEOUT) {
       showDashboard();
+    } else {
+      sessionStorage.removeItem('yogabinds_admin');
+      sessionStorage.removeItem('yogabinds_admin_time');
     }
 
-    loginForm.addEventListener('submit', function(e) {
+    // Auto-expire session every minute
+    setInterval(function() {
+      var t = parseInt(sessionStorage.getItem('yogabinds_admin_time') || '0');
+      if (t && (Date.now() - t) > SESSION_TIMEOUT) {
+        sessionStorage.removeItem('yogabinds_admin');
+        sessionStorage.removeItem('yogabinds_admin_time');
+        location.reload();
+      }
+    }, 60000);
+
+    loginForm.addEventListener('submit', async function(e) {
       e.preventDefault();
       var user = document.getElementById('adminUser').value;
       var pass = document.getElementById('adminPass').value;
+      var userHash = await hashString(user);
+      var passHash = await hashString(pass);
 
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+      if (userHash === ADMIN_USER_HASH && passHash === ADMIN_PASS_HASH) {
         sessionStorage.setItem('yogabinds_admin', 'true');
+        sessionStorage.setItem('yogabinds_admin_time', Date.now().toString());
         showDashboard();
       } else {
         loginError.style.display = 'block';
@@ -365,6 +402,7 @@
     document.getElementById('logoutBtn').addEventListener('click', function(e) {
       e.preventDefault();
       sessionStorage.removeItem('yogabinds_admin');
+      sessionStorage.removeItem('yogabinds_admin_time');
       location.reload();
     });
 
@@ -408,17 +446,17 @@
         bookingsPanel.innerHTML = bookings.map(function(b) {
           var planLabel = b.plan === 'intro' ? 'Introductory Offer' : 'Casual Class';
           var badgeClass = b.plan === 'intro' ? 'intro' : 'casual';
-          var dates = b.classDates ? b.classDates.join(', ') : 'Not specified';
-          var date = b.createdAt ? new Date(b.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-';
+          var dates = escapeHTML(b.classDates ? b.classDates.join(', ') : 'Not specified');
+          var date = escapeHTML(b.createdAt ? new Date(b.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-');
           return '<div class="admin-card">' +
             '<span class="admin-badge ' + badgeClass + '">' + planLabel + '</span>' +
-            '<h4>' + (b.fullName || 'Unknown') + '</h4>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + (b.email || '-') + '</span></div>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Phone:</span><span class="admin-card-value">' + (b.phone || '-') + '</span></div>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Amount:</span><span class="admin-card-value">' + (b.amount || '-') + '</span></div>' +
+            '<h4>' + escapeHTML(b.fullName || 'Unknown') + '</h4>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + escapeHTML(b.email || '-') + '</span></div>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Phone:</span><span class="admin-card-value">' + escapeHTML(b.phone || '-') + '</span></div>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Amount:</span><span class="admin-card-value">' + escapeHTML(b.amount || '-') + '</span></div>' +
             '<div class="admin-card-row"><span class="admin-card-label">Class Dates:</span><span class="admin-card-value">' + dates + '</span></div>' +
             '<div class="admin-card-row"><span class="admin-card-label">Account:</span><span class="admin-card-value">' + (b.accountCreated ? 'Yes' : 'Guest') + '</span></div>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Card Last 4:</span><span class="admin-card-value">' + (b.cardLast4 || '-') + '</span></div>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Card Last 4:</span><span class="admin-card-value">' + escapeHTML(b.cardLast4 || '-') + '</span></div>' +
             '<div class="admin-card-row"><span class="admin-card-label">Booked On:</span><span class="admin-card-value">' + date + '</span></div>' +
           '</div>';
         }).join('');
@@ -430,11 +468,11 @@
         feedbackPanel.innerHTML = '<div class="admin-empty">No feedback yet.</div>';
       } else {
         feedbackPanel.innerHTML = feedback.map(function(f) {
-          var date = f.createdAt ? new Date(f.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-';
+          var date = escapeHTML(f.createdAt ? new Date(f.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-');
           return '<div class="admin-card">' +
-            '<h4>' + (f.name || 'Anonymous') + '</h4>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + (f.email || '-') + '</span></div>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Message:</span><span class="admin-card-value">' + (f.message || '-') + '</span></div>' +
+            '<h4>' + escapeHTML(f.name || 'Anonymous') + '</h4>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + escapeHTML(f.email || '-') + '</span></div>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Message:</span><span class="admin-card-value">' + escapeHTML(f.message || '-') + '</span></div>' +
             '<div class="admin-card-row"><span class="admin-card-label">Date:</span><span class="admin-card-value">' + date + '</span></div>' +
           '</div>';
         }).join('');
@@ -446,11 +484,11 @@
         contactsPanel.innerHTML = '<div class="admin-empty">No contact messages yet.</div>';
       } else {
         contactsPanel.innerHTML = contacts.map(function(c) {
-          var date = c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-';
+          var date = escapeHTML(c.createdAt ? new Date(c.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-');
           return '<div class="admin-card">' +
-            '<h4>' + (c.name || 'Anonymous') + '</h4>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + (c.email || '-') + '</span></div>' +
-            '<div class="admin-card-row"><span class="admin-card-label">Message:</span><span class="admin-card-value">' + (c.message || '-') + '</span></div>' +
+            '<h4>' + escapeHTML(c.name || 'Anonymous') + '</h4>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Email:</span><span class="admin-card-value">' + escapeHTML(c.email || '-') + '</span></div>' +
+            '<div class="admin-card-row"><span class="admin-card-label">Message:</span><span class="admin-card-value">' + escapeHTML(c.message || '-') + '</span></div>' +
             '<div class="admin-card-row"><span class="admin-card-label">Date:</span><span class="admin-card-value">' + date + '</span></div>' +
           '</div>';
         }).join('');
