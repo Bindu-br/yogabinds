@@ -344,6 +344,15 @@
         amount: plan === 'casual' ? '$14.99 AUD' : '$29.99 AUD'
       };
 
+      // Clear sensitive fields from memory immediately
+      document.getElementById('cardNumber').value = '';
+      document.getElementById('cardExpiry').value = '';
+      document.getElementById('cardCvc').value = '';
+      if (isCreatingAccount) {
+        document.getElementById('password').value = '';
+        document.getElementById('confirmPassword').value = '';
+      }
+
       var saved = await saveBooking(bookingData);
 
       if (saved) {
