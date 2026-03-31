@@ -1345,6 +1345,38 @@ section {
   font-size: 1rem;
 }
 
+.stripe-notice {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.stripe-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+}
+
+.payment-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--green-dark);
+  color: var(--white);
+  font-size: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
 /* --- Programmes Page (Landing) --- */
 .programmes-hero {
   padding-top: 140px;

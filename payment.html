@@ -84,24 +84,6 @@
               <input type="tel" id="phone" placeholder="+61 4XX XXX XXX" required />
             </div>
 
-            <!-- Account Option -->
-            <div class="form-section-title">Account</div>
-            <div class="account-choice">
-              <button type="button" class="btn" id="createAccountBtn">Create Account</button>
-              <button type="button" class="btn" id="guestCheckoutBtn">Check Out as Guest</button>
-            </div>
-
-            <div class="form-group" id="passwordGroup" style="display: none;">
-              <label for="password">Create Password</label>
-              <input type="password" id="password" placeholder="Enter a password" minlength="6" />
-            </div>
-            <div class="form-group" id="confirmPasswordGroup" style="display: none;">
-              <label for="confirmPassword">Confirm Password</label>
-              <input type="password" id="confirmPassword" placeholder="Confirm your password" minlength="6" />
-            </div>
-
-
-
 
 
             <!-- Class Dates -->
@@ -121,36 +103,21 @@
               <input type="date" id="classDate3" />
             </div>
 
-            <!-- Payment Details -->
-            <div class="form-section-title">Payment Details</div>
+            <!-- Payment -->
+            <div class="form-section-title">Payment</div>
+            <p class="stripe-notice">You'll be redirected to Stripe's secure checkout to complete payment.</p>
 
-            <div class="form-group">
-              <label for="cardName">Name on Card</label>
-              <input type="text" id="cardName" placeholder="Name as it appears on card" required />
-            </div>
-
-            <div class="form-group">
-              <label for="cardNumber">Card Number</label>
-              <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" required maxlength="19" />
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="cardExpiry">Expiry Date</label>
-                <input type="text" id="cardExpiry" placeholder="MM / YY" required maxlength="7" />
-              </div>
-              <div class="form-group">
-                <label for="cardCvc">CVC</label>
-                <input type="text" id="cardCvc" placeholder="123" required maxlength="4" />
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-large payment-submit">
-              Confirm & Pay
+            <button type="submit" class="btn btn-primary btn-large payment-submit" id="payBtn">
+              Proceed to Payment
             </button>
 
+            <div class="stripe-badge">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Secured by Stripe
+            </div>
+
             <p class="payment-disclaimer">
-              Your payment is processed securely. By completing this booking, you agree to the
+              Your payment is processed securely by Stripe. Your card details never touch our servers. By completing this booking, you agree to the
               <a href="terms.html">Terms of Service</a> and <a href="refund-policy.html">Refund Policy</a>.
             </p>
           </form>
@@ -187,8 +154,6 @@
   <script src="auth.js"></script>
   <script type="module" src="auth-module.js"></script>
   <script type="module">
-    import { saveBooking } from './firebase.js';
-
     // ---- Read Plan from URL ----
     var params = new URLSearchParams(window.location.search);
     var plan = params.get('plan');
@@ -208,12 +173,10 @@
       summaryClasses.textContent = '1';
       summaryTotal.textContent = '$14.99 AUD';
 
-      // Hide extra date fields for casual plan
       document.getElementById('classDate2Group').style.display = 'none';
       document.getElementById('classDate3Group').style.display = 'none';
       document.getElementById('datePluralLabel').style.display = 'none';
     } else {
-      // Intro plan: require all 3 dates
       document.getElementById('classDate2').required = true;
       document.getElementById('classDate3').required = true;
     }
@@ -225,7 +188,6 @@
       enable: [function(date) { return date.getDay() === 4; }],
       onChange: function(selectedDates) {
         if (selectedDates.length > 0) {
-          // Set class 2 min to next Thursday after class 1
           var nextDay = new Date(selectedDates[0]);
           nextDay.setDate(nextDay.getDate() + 1);
           fp2.set('minDate', nextDay);
@@ -240,7 +202,6 @@
       enable: [function(date) { return date.getDay() === 4; }],
       onChange: function(selectedDates) {
         if (selectedDates.length > 0) {
-          // Set class 3 min to next Thursday after class 2
           var nextDay = new Date(selectedDates[0]);
           nextDay.setDate(nextDay.getDate() + 1);
           fp3.set('minDate', nextDay);
@@ -254,117 +215,68 @@
       enable: [function(date) { return date.getDay() === 4; }]
     });
 
-    // ---- Account Choice ----
-    var createAccountBtn = document.getElementById('createAccountBtn');
-    var guestCheckoutBtn = document.getElementById('guestCheckoutBtn');
-    var passwordGroup = document.getElementById('passwordGroup');
-    var confirmPasswordGroup = document.getElementById('confirmPasswordGroup');
-    var isCreatingAccount = false;
-
-    createAccountBtn.addEventListener('click', function () {
-      isCreatingAccount = true;
-      passwordGroup.style.display = 'block';
-      confirmPasswordGroup.style.display = 'block';
-      document.getElementById('password').required = true;
-      document.getElementById('confirmPassword').required = true;
-      createAccountBtn.classList.add('active');
-      guestCheckoutBtn.classList.remove('active');
-    });
-
-    guestCheckoutBtn.addEventListener('click', function () {
-      isCreatingAccount = false;
-      passwordGroup.style.display = 'none';
-      confirmPasswordGroup.style.display = 'none';
-      document.getElementById('password').required = false;
-      document.getElementById('confirmPassword').required = false;
-      guestCheckoutBtn.classList.add('active');
-      createAccountBtn.classList.remove('active');
-    });
-
-    // ---- Card Number Formatting ----
-    document.getElementById('cardNumber').addEventListener('input', function (e) {
-      var value = e.target.value.replace(/\D/g, '');
-      var formatted = value.replace(/(\d{4})(?=\d)/g, '$1 ');
-      e.target.value = formatted.substring(0, 19);
-    });
-
-    // ---- Expiry Date Formatting ----
-    document.getElementById('cardExpiry').addEventListener('input', function (e) {
-      var value = e.target.value.replace(/\D/g, '');
-      if (value.length >= 2) {
-        e.target.value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
-      } else {
-        e.target.value = value;
-      }
-    });
-
-    // ---- Payment Handler ----
+    // ---- Payment Handler — Redirect to Stripe ----
     document.getElementById('paymentForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      var submitBtn = this.querySelector('button[type="submit"]');
+      var submitBtn = document.getElementById('payBtn');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Processing...';
+      submitBtn.textContent = 'Redirecting to Stripe...';
 
-      if (isCreatingAccount) {
-        var password = document.getElementById('password').value;
-        var confirmPassword = document.getElementById('confirmPassword').value;
-        if (password !== confirmPassword) {
-          alert('Passwords do not match. Please try again.');
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Confirm & Pay';
-          return;
-        }
-      }
-
-      // Input validation
       var fullName = document.getElementById('fullName').value;
       var email = document.getElementById('email').value;
       var phone = document.getElementById('phone').value;
+
+      // Input validation
       if (fullName.length > 100 || email.length > 200 || phone.length > 30) {
         alert('Input too long. Please shorten your submission.');
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Confirm & Pay';
+        submitBtn.textContent = 'Proceed to Payment';
         return;
       }
 
-      var bookingData = {
+      var classDates = plan === 'casual'
+        ? [document.getElementById('classDate1').value]
+        : [
+            document.getElementById('classDate1').value,
+            document.getElementById('classDate2').value,
+            document.getElementById('classDate3').value
+          ];
+
+      // Save booking data to sessionStorage (retrieved on success page)
+      sessionStorage.setItem('yogabinds_booking', JSON.stringify({
         plan: plan || 'intro',
-        fullName: document.getElementById('fullName').value,
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value,
-        accountCreated: isCreatingAccount,
-        classDates: plan === 'casual'
-          ? [document.getElementById('classDate1').value]
-          : [
-              document.getElementById('classDate1').value,
-              document.getElementById('classDate2').value,
-              document.getElementById('classDate3').value
-            ],
-        // Note: card details are NOT stored for security — only last 4 digits for reference
-        cardLast4: document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4),
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        classDates: classDates,
         amount: plan === 'casual' ? '$14.99 AUD' : '$29.99 AUD'
-      };
+      }));
 
-      // Clear sensitive fields from memory immediately
-      document.getElementById('cardNumber').value = '';
-      document.getElementById('cardExpiry').value = '';
-      document.getElementById('cardCvc').value = '';
-      if (isCreatingAccount) {
-        document.getElementById('password').value = '';
-        document.getElementById('confirmPassword').value = '';
-      }
+      try {
+        var response = await fetch('/api/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            plan: plan || 'intro',
+            fullName: fullName,
+            email: email,
+            phone: phone,
+            classDates: classDates
+          })
+        });
 
-      var saved = await saveBooking(bookingData);
+        var data = await response.json();
 
-      if (saved) {
-        document.getElementById('paymentSuccess').classList.add('show');
-        document.getElementById('paymentForm').style.display = 'none';
-        document.querySelector('.payment-form-container').scrollIntoView({ behavior: 'smooth' });
-      } else {
-        alert('Something went wrong. Please try again.');
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error(data.error || 'Failed to create payment session');
+        }
+      } catch (err) {
+        alert('Something went wrong: ' + err.message);
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Confirm & Pay';
+        submitBtn.textContent = 'Proceed to Payment';
       }
     });
   </script>

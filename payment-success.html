@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking Confirmed | YogaBinds</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">Yoga<span>Binds</span></a>
+      <ul class="navbar-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="journey.html">Journey</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#" class="btn btn-primary btn-small" id="loginBtn" onclick="openLoginModal(event)">Login</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" onclick="toggleNav()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== SUCCESS SECTION ========== -->
+  <section class="policy-page">
+    <div class="container" style="text-align: center; padding-top: 160px; padding-bottom: 120px;">
+      <div class="payment-success-icon">&#10003;</div>
+      <h1>Booking Confirmed.</h1>
+      <p style="max-width: 500px; margin: 16px auto 12px; color: var(--text-muted); font-size: 1.05rem;">
+        Thank you for your booking! Your payment has been processed securely by Stripe.
+      </p>
+      <p id="confirmationDetails" style="max-width: 500px; margin: 0 auto 32px; color: var(--text-secondary); font-size: 0.95rem;"></p>
+      <p style="max-width: 500px; margin: 0 auto 40px; color: var(--text-muted); font-size: 0.95rem;">
+        I'll be in touch with class details shortly. A confirmation email has been sent to your inbox.
+      </p>
+      <a href="index.html" class="btn btn-primary">Back to Home</a>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">YogaBinds</div>
+          <p class="footer-desc">
+            A yoga studio rooted in ancient tradition.
+            Breath-led. Community-driven. Purpose-built.
+          </p>
+        </div>
+        <div class="footer-column">
+          <h4>Legal</h4>
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script type="module" src="auth-module.js"></script>
+  <script type="module">
+    import { saveBooking } from './firebase.js';
+
+    // Retrieve booking data from sessionStorage and save to Firestore
+    var bookingJson = sessionStorage.getItem('yogabinds_booking');
+    if (bookingJson) {
+      try {
+        var booking = JSON.parse(bookingJson);
+        booking.paymentStatus = 'paid';
+        booking.paymentMethod = 'stripe';
+        await saveBooking(booking);
+        sessionStorage.removeItem('yogabinds_booking');
+
+        // Show booking details
+        var details = document.getElementById('confirmationDetails');
+        details.textContent = booking.plan === 'casual'
+          ? 'Plan: Casual Class — $14.99 AUD'
+          : 'Plan: Introductory Offer — $29.99 AUD';
+      } catch (e) {
+        console.error('Error saving booking:', e);
+      }
+    }
+  </script>
+</body>
+</html>
