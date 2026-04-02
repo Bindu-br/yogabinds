@@ -136,6 +136,16 @@ onAuthChange(function(user) {
       await logoutUser();
     };
 
+    // Show My Bookings link in navbar
+    var bookingsLink = document.getElementById('navMyBookings');
+    if (!bookingsLink) {
+      bookingsLink = document.createElement('li');
+      bookingsLink.id = 'navMyBookings';
+      bookingsLink.innerHTML = '<a href="my-bookings.html">My Bookings</a>';
+      btn.closest('ul').insertBefore(bookingsLink, btn.closest('li'));
+    }
+    bookingsLink.style.display = '';
+
     // Show user email in navbar
     var emailEl = document.getElementById('navUserEmail');
     if (!emailEl) {
@@ -152,6 +162,8 @@ onAuthChange(function(user) {
     btn.onclick = function(e) { e.preventDefault(); openLoginModal(); };
     var emailEl = document.getElementById('navUserEmail');
     if (emailEl) emailEl.style.display = 'none';
+    var bookingsLink = document.getElementById('navMyBookings');
+    if (bookingsLink) bookingsLink.style.display = 'none';
   }
 
   // Payment page: show choice screen for guests, form for signed-in users

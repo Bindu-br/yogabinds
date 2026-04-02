@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings | YogaBinds</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ========== NAVIGATION ========== -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">Yoga<span>Binds</span></a>
+      <ul class="navbar-links" id="navLinks">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="journey.html">Journey</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#" class="btn btn-primary btn-small" id="loginBtn" onclick="openLoginModal(event)">Login</a></li>
+      </ul>
+      <button class="hamburger" id="hamburger" onclick="toggleNav()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ========== MY BOOKINGS ========== -->
+  <section class="policy-page">
+    <div class="container">
+      <span class="section-label">Your Account</span>
+      <div class="section-header">
+        <h1>My Bookings.</h1>
+      </div>
+
+      <div id="bookingsLoginPrompt" class="auth-required-overlay" style="display: none;">
+        <div class="auth-required-box">
+          <h3>Sign in to view your bookings</h3>
+          <p>Please sign in to see your class bookings and manage cancellations.</p>
+          <a href="#" class="btn btn-primary" onclick="event.preventDefault(); openLoginModal();">Sign In</a>
+        </div>
+      </div>
+
+      <div id="bookingsLoading" style="display: none; text-align: center; padding: 40px 0; color: var(--text-muted);">
+        Loading your bookings...
+      </div>
+
+      <div id="bookingsEmpty" style="display: none; text-align: center; padding: 40px 0;">
+        <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 24px;">You don't have any bookings yet.</p>
+        <a href="payment.html?plan=casual" class="btn btn-primary">Book a Class</a>
+      </div>
+
+      <div id="bookingsList" class="bookings-list" style="display: none;"></div>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <div class="footer-brand">YogaBinds</div>
+          <p class="footer-desc">
+            A yoga studio rooted in ancient tradition.
+            Breath-led. Community-driven. Purpose-built.
+          </p>
+        </div>
+        <div class="footer-column">
+          <ul>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="faqs.html">FAQs</a></li>
+            <li><a href="refund-policy.html">Refund Policy</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="auth.js"></script>
+  <script type="module" src="auth-module.js"></script>
+  <script type="module">
+    import { onAuthChange, getUserBookings, cancelBooking } from './firebase.js';
+
+    onAuthChange(async function(user) {
+      var loginPrompt = document.getElementById('bookingsLoginPrompt');
+      var loading = document.getElementById('bookingsLoading');
+      var empty = document.getElementById('bookingsEmpty');
+      var list = document.getElementById('bookingsList');
+
+      // Hide all first
+      loginPrompt.style.display = 'none';
+      loading.style.display = 'none';
+      empty.style.display = 'none';
+      list.style.display = 'none';
+
+      if (!user) {
+        loginPrompt.style.display = 'flex';
+        return;
+      }
+
+      loading.style.display = 'block';
+      var bookings = await getUserBookings(user.uid);
+      loading.style.display = 'none';
+
+      if (bookings.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      list.style.display = 'block';
+      list.innerHTML = '';
+
+      bookings.forEach(function(booking) {
+        var classDates = booking.classDates || [];
+        var plan = booking.plan === 'casual' ? 'Casual Class' : 'Introductory Offer';
+        var amount = booking.amount || (booking.plan === 'casual' ? '$15.99 AUD' : '$29.99 AUD');
+
+        // Check cancellation eligibility for each class date
+        // Class is at 6 PM on the given Thursday
+        // Can cancel if now is more than 24 hours before class start
+        var now = new Date();
+        var canCancel = false;
+        var nextClassDate = null;
+
+        for (var i = 0; i < classDates.length; i++) {
+          var classStart = new Date(classDates[i] + 'T18:00:00');
+          var cancelDeadline = new Date(classStart.getTime() - (24 * 60 * 60 * 1000));
+          if (now < cancelDeadline) {
+            canCancel = true;
+            if (!nextClassDate || classStart < nextClassDate) {
+              nextClassDate = classStart;
+            }
+          }
+        }
+
+        // Format dates for display
+        var datesHtml = classDates.map(function(d) {
+          var date = new Date(d + 'T18:00:00');
+          var isPast = date < now;
+          var label = date.toLocaleDateString('en-AU', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+          return '<span class="booking-date ' + (isPast ? 'past' : 'upcoming') + '">' + label + ' at 6:00 PM' + (isPast ? ' (Attended)' : '') + '</span>';
+        }).join('');
+
+        // Booking created date
+        var createdAt = '';
+        if (booking.createdAt && booking.createdAt.toDate) {
+          createdAt = booking.createdAt.toDate().toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+        }
+
+        var cancelBtnHtml = '';
+        if (canCancel) {
+          cancelBtnHtml = '<button class="btn btn-outline btn-small cancel-booking-btn" data-id="' + booking.id + '">Cancel Booking</button>';
+        } else {
+          cancelBtnHtml = '<span class="cancel-unavailable">Cancellation unavailable (within 24 hours of class)</span>';
+        }
+
+        var card = document.createElement('div');
+        card.className = 'booking-card';
+        card.innerHTML =
+          '<div class="booking-card-header">' +
+            '<div><h3>' + plan + '</h3>' +
+            (createdAt ? '<span class="booking-booked-on">Booked on ' + createdAt + '</span>' : '') +
+            '</div>' +
+            '<div class="booking-amount">' + amount + '</div>' +
+          '</div>' +
+          '<div class="booking-dates">' +
+            '<div class="booking-dates-label">Class Dates</div>' +
+            datesHtml +
+          '</div>' +
+          '<div class="booking-actions">' + cancelBtnHtml + '</div>';
+
+        list.appendChild(card);
+      });
+
+      // Attach cancel handlers
+      var cancelBtns = document.querySelectorAll('.cancel-booking-btn');
+      cancelBtns.forEach(function(btn) {
+        btn.addEventListener('click', async function() {
+          var id = this.getAttribute('data-id');
+          if (!confirm('Are you sure you want to cancel this booking? This action cannot be undone.')) return;
+          this.disabled = true;
+          this.textContent = 'Cancelling...';
+          var result = await cancelBooking(id);
+          if (result.success) {
+            this.closest('.booking-card').remove();
+            // Check if list is now empty
+            if (document.querySelectorAll('.booking-card').length === 0) {
+              list.style.display = 'none';
+              empty.style.display = 'block';
+            }
+          } else {
+            alert('Failed to cancel: ' + (result.error || 'Please try again.'));
+            this.disabled = false;
+            this.textContent = 'Cancel Booking';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

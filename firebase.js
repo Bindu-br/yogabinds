@@ -11,7 +11,7 @@
 // ============================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, getDoc, deleteDoc, doc, query, where, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
@@ -105,8 +105,10 @@ export async function saveFeedback(name, email, message) {
 // ---- Save Booking ----
 export async function saveBooking(bookingData) {
   try {
+    var user = auth.currentUser;
     await addDoc(collection(db, "bookings"), {
       ...bookingData,
+      uid: user ? user.uid : null,
       createdAt: serverTimestamp()
     });
     return true;
@@ -114,6 +116,34 @@ export async function saveBooking(bookingData) {
     console.error("Error saving booking:", error);
     return false;
   }
+}
+
+// ---- Fetch User Bookings ----
+export async function getUserBookings(uid) {
+  try {
+    const q = query(collection(db, "bookings"), where("uid", "==", uid), orderBy("createdAt", "desc"));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error("Error fetching user bookings:", error);
+    return [];
+  }
+}
+
+// ---- Cancel Booking ----
+export async function cancelBooking(bookingId) {
+  try {
+    await deleteDoc(doc(db, "bookings", bookingId));
+    return { success: true };
+  } catch (error) {
+    console.error("Error cancelling booking:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+// ---- Get current user ----
+export function getCurrentUser() {
+  return auth.currentUser;
 }
 
 // ---- Save Contact Message ----

@@ -1437,6 +1437,89 @@ section {
   color: var(--green-darkest);
 }
 
+/* --- My Bookings --- */
+.bookings-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.booking-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  transition: box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.booking-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.booking-card-header h3 {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.booking-booked-on {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.booking-amount {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--green-dark);
+}
+
+.booking-dates {
+  margin-bottom: 20px;
+}
+
+.booking-dates-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.booking-date {
+  display: block;
+  font-size: 0.92rem;
+  padding: 6px 0;
+  color: var(--text-primary);
+}
+
+.booking-date.past {
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.booking-date.upcoming {
+  color: var(--green-dark);
+  font-weight: 600;
+}
+
+.booking-actions {
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.cancel-unavailable {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .stripe-notice {
   font-size: 0.9rem;
   color: var(--text-muted);
