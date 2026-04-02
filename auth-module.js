@@ -154,27 +154,8 @@ onAuthChange(function(user) {
     if (emailEl) emailEl.style.display = 'none';
   }
 
-  // Payment page protection
-  if (document.querySelector('.payment-page') && !user) {
-    var form = document.getElementById('paymentForm');
-    if (form) {
-      var overlay = document.getElementById('paymentAuthOverlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'paymentAuthOverlay';
-        overlay.className = 'auth-required-overlay';
-        overlay.innerHTML = '<div class="auth-required-box"><h3>Sign in required</h3><p>Please sign in or create an account to complete your booking.</p><a href="#" class="btn btn-primary" id="paymentLoginBtn">Sign In</a></div>';
-        form.parentNode.insertBefore(overlay, form);
-        document.getElementById('paymentLoginBtn').addEventListener('click', function(e) {
-          e.preventDefault();
-          openLoginModal();
-        });
-      }
-      overlay.style.display = 'flex';
-      form.style.display = 'none';
-    }
-  }
-  if (document.querySelector('.payment-page') && user) {
+  // Payment page: show form for both logged-in users and guests
+  if (document.querySelector('.payment-page')) {
     var overlay = document.getElementById('paymentAuthOverlay');
     if (overlay) overlay.style.display = 'none';
     var form = document.getElementById('paymentForm');
