@@ -69,26 +69,37 @@
   <script src="auth.js"></script>
   <script type="module" src="auth-module.js"></script>
   <script type="module">
-    import { saveBooking } from './firebase.js';
+    import { saveBooking, onAuthChange } from './firebase.js';
 
-    // Retrieve booking data from sessionStorage and save to Firestore
+    // Wait for auth state to be ready before saving booking
+    // This ensures uid is set correctly
     var bookingJson = sessionStorage.getItem('yogabinds_booking');
     if (bookingJson) {
+      // Show booking details immediately
       try {
-        var booking = JSON.parse(bookingJson);
-        booking.paymentStatus = 'paid';
-        booking.paymentMethod = 'stripe';
-        await saveBooking(booking);
-        sessionStorage.removeItem('yogabinds_booking');
-
-        // Show booking details
+        var bookingPreview = JSON.parse(bookingJson);
         var details = document.getElementById('confirmationDetails');
-        details.textContent = booking.plan === 'casual'
+        details.textContent = bookingPreview.plan === 'casual'
           ? 'Plan: Casual Class — $15.99 AUD'
           : 'Plan: Introductory Offer — $29.99 AUD';
-      } catch (e) {
-        console.error('Error saving booking:', e);
-      }
+      } catch (e) {}
+
+      // Save after auth state resolves
+      onAuthChange(async function(user) {
+        var json = sessionStorage.getItem('yogabinds_booking');
+        if (!json) return; // already saved
+        try {
+          var booking = JSON.parse(json);
+          booking.paymentStatus = 'paid';
+          booking.paymentMethod = 'stripe';
+          var saved = await saveBooking(booking);
+          if (saved) {
+            sessionStorage.removeItem('yogabinds_booking');
+          }
+        } catch (e) {
+          console.error('Error saving booking:', e);
+        }
+      });
     }
   </script>
 </body>
