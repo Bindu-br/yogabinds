@@ -206,9 +206,14 @@ export async function getFeedback() {
 // ---- Fetch User Invoices ----
 export async function getUserInvoices(email) {
   try {
-    const q = query(collection(db, "invoices"), where("customerEmail", "==", email), orderBy("createdAt", "desc"));
+    const q = query(collection(db, "invoices"), where("customerEmail", "==", email));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    var invoices = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // Sort by createdAt descending (client-side to avoid composite index)
+    invoices.sort(function(a, b) {
+      return (b.createdAt || '').localeCompare(a.createdAt || '');
+    });
+    return invoices;
   } catch (error) {
     console.error("Error fetching user invoices:", error);
     return [];
