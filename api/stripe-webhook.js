@@ -105,6 +105,12 @@ function generateInvoicePDF(invoice) {
   });
 }
 
+// ── HTML Escaper (for email templates) ──
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
 // ── Main Handler ──
 async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -222,8 +228,8 @@ async function handler(req, res) {
             '<h2 style="color:#2d5e3f;margin-bottom:4px;">YogaBinds</h2>' +
             '<p style="color:#999;font-size:13px;margin-top:0;">A yoga studio rooted in ancient tradition</p>' +
             '<hr style="border:none;border-top:2px solid #2d5e3f;margin:24px 0;" />' +
-            '<p>Hi ' + customerName + ',</p>' +
-            '<p>Thank you for your booking! Please find your invoice <strong>' + invoiceNumber + '</strong> attached.</p>' +
+            '<p>Hi ' + escapeHTML(customerName) + ',</p>' +
+            '<p>Thank you for your booking! Please find your invoice <strong>' + escapeHTML(invoiceNumber) + '</strong> attached.</p>' +
             '<p>Your payment has been received and processed successfully via Stripe.</p>' +
             '<p>You can also download your invoice anytime from the <strong>My Bookings</strong> page.</p>' +
             '<p style="margin-top:32px;">Namaste,<br/><strong style="color:#2d5e3f;">YogaBinds</strong></p>' +

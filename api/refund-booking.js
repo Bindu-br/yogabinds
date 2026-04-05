@@ -9,6 +9,11 @@ if (!admin.apps.length) {
 }
 var db = admin.firestore();
 
+function escapeHTML(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -143,7 +148,7 @@ module.exports = async function handler(req, res) {
           '<h2 style="color:#2d5e3f;margin-bottom:4px;">YogaBinds</h2>' +
           '<p style="color:#999;font-size:13px;margin-top:0;">A yoga studio rooted in ancient tradition</p>' +
           '<hr style="border:none;border-top:2px solid #2d5e3f;margin:24px 0;" />' +
-          '<p>Hi ' + customerName + ',</p>' +
+          '<p>Hi ' + escapeHTML(customerName) + ',</p>' +
           '<p>Your booking has been <strong>cancelled</strong> and a refund has been processed.</p>' +
           '<table style="width:100%;margin:24px 0;border-collapse:collapse;">' +
             '<tr style="background:#f5f5f5;"><td style="padding:10px 12px;font-size:13px;color:#666;">Refund Amount</td><td style="padding:10px 12px;font-size:13px;font-weight:bold;text-align:right;">$' + refundAmount + ' AUD</td></tr>' +

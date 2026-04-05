@@ -223,13 +223,31 @@
       submitBtn.disabled = true;
       submitBtn.textContent = 'Redirecting to Stripe...';
 
-      var fullName = document.getElementById('fullName').value;
-      var email = document.getElementById('email').value;
-      var phone = document.getElementById('phone').value;
+      var fullName = document.getElementById('fullName').value.trim();
+      var email = document.getElementById('email').value.trim().toLowerCase();
+      var phone = document.getElementById('phone').value.trim();
 
       // Input validation
+      if (!fullName || !email || !phone) {
+        alert('Please fill in all fields.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Proceed to Payment';
+        return;
+      }
       if (fullName.length > 100 || email.length > 200 || phone.length > 30) {
         alert('Input too long. Please shorten your submission.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Proceed to Payment';
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Proceed to Payment';
+        return;
+      }
+      if (!/^[+\d\s()\-]{6,30}$/.test(phone)) {
+        alert('Please enter a valid phone number.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Proceed to Payment';
         return;

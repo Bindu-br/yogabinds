@@ -85,6 +85,11 @@
   <script type="module">
     import { onAuthChange, getUserBookings, cancelBooking, getAuthToken } from './firebase.js';
 
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
     onAuthChange(async function(user) {
       var loginPrompt = document.getElementById('bookingsLoginPrompt');
       var loading = document.getElementById('bookingsLoading');
@@ -154,9 +159,9 @@
         var isCancelled = booking.status === 'cancelled';
 
         if (isCancelled) {
-          cancelBtnHtml = '<span class="refund-status">Cancelled — Refund processed' + (booking.refundId ? ' (' + booking.refundId + ')' : '') + '</span>';
+          cancelBtnHtml = '<span class="refund-status">Cancelled — Refund processed' + (booking.refundId ? ' (' + escapeHTML(booking.refundId) + ')' : '') + '</span>';
         } else if (canCancel) {
-          cancelBtnHtml = '<button class="btn btn-outline btn-small cancel-booking-btn" data-id="' + booking.id + '">Cancel Booking</button>';
+          cancelBtnHtml = '<button class="btn btn-outline btn-small cancel-booking-btn" data-id="' + escapeHTML(booking.id) + '">Cancel Booking</button>';
         } else {
           cancelBtnHtml = '<span class="cancel-unavailable">Cancellation unavailable (within 24 hours of class)</span>';
         }
@@ -165,10 +170,10 @@
         card.className = 'booking-card' + (isCancelled ? ' booking-cancelled' : '');
         card.innerHTML =
           '<div class="booking-card-header">' +
-            '<div><h3>' + plan + '</h3>' +
-            (createdAt ? '<span class="booking-booked-on">Booked on ' + createdAt + '</span>' : '') +
+            '<div><h3>' + escapeHTML(plan) + '</h3>' +
+            (createdAt ? '<span class="booking-booked-on">Booked on ' + escapeHTML(createdAt) + '</span>' : '') +
             '</div>' +
-            '<div class="booking-amount">' + amount + '</div>' +
+            '<div class="booking-amount">' + escapeHTML(amount) + '</div>' +
           '</div>' +
           '<div class="booking-dates">' +
             '<div class="booking-dates-label">Class Dates</div>' +
@@ -212,7 +217,7 @@
               if (result.refunded) {
                 // Show refunded status instead of removing
                 card.querySelector('.booking-actions').innerHTML =
-                  '<span class="refund-status">Cancelled — Refund processed (' + result.refundId + ')</span>';
+                  '<span class="refund-status">Cancelled — Refund processed</span>';
                 card.classList.add('booking-cancelled');
               } else {
                 card.remove();

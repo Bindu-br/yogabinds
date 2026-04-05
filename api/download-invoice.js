@@ -47,8 +47,9 @@ module.exports = async function handler(req, res) {
 
     if (invoice.pdfBase64) {
       var pdfBuffer = Buffer.from(invoice.pdfBase64, 'base64');
+      var safeFilename = String(invoice.invoiceNumber || 'invoice').replace(/[^a-zA-Z0-9\-_]/g, '');
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename="' + invoice.invoiceNumber + '.pdf"');
+      res.setHeader('Content-Disposition', 'attachment; filename="' + safeFilename + '.pdf"');
       return res.status(200).send(pdfBuffer);
     }
 

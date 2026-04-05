@@ -120,13 +120,21 @@
 
     document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
       e.preventDefault();
-      var name = document.getElementById('feedbackName').value;
-      var email = document.getElementById('feedbackEmail').value;
-      var message = document.getElementById('feedbackMessage').value;
+      var name = document.getElementById('feedbackName').value.trim();
+      var email = document.getElementById('feedbackEmail').value.trim().toLowerCase();
+      var message = document.getElementById('feedbackMessage').value.trim();
 
       // Input validation
+      if (!name || !email || !message) {
+        alert('Please fill in all fields.');
+        return;
+      }
       if (name.length > 100 || email.length > 200 || message.length > 2000) {
         alert('Input too long. Please shorten your submission.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
         return;
       }
 

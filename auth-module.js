@@ -58,11 +58,11 @@ function injectModals() {
         </div>
         <div class="form-group">
           <label for="signupPassword">Password</label>
-          <input type="password" id="signupPassword" placeholder="Create a password" required autocomplete="new-password" minlength="6" />
+          <input type="password" id="signupPassword" placeholder="Min 8 chars, upper + lower + number" required autocomplete="new-password" minlength="8" />
         </div>
         <div class="form-group">
           <label for="signupConfirmPassword">Confirm Password</label>
-          <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required autocomplete="new-password" minlength="6" />
+          <input type="password" id="signupConfirmPassword" placeholder="Confirm your password" required autocomplete="new-password" minlength="8" />
         </div>
         <div class="form-group">
           <label for="signupPhone">Phone Number</label>
@@ -223,7 +223,7 @@ onAuthChange(function(user) {
 // ---- Login form ----
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  var email = document.getElementById('loginEmail').value;
+  var email = document.getElementById('loginEmail').value.trim().toLowerCase();
   var password = document.getElementById('loginPassword').value;
   var errorEl = document.getElementById('loginError');
   var submitBtn = this.querySelector('button[type="submit"]');
@@ -245,18 +245,46 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 // ---- Signup form ----
 document.getElementById('signupForm').addEventListener('submit', async function(e) {
   e.preventDefault();
-  var firstName = document.getElementById('signupFirstName').value;
-  var lastName = document.getElementById('signupLastName').value;
-  var email = document.getElementById('signupEmail').value;
+  var firstName = document.getElementById('signupFirstName').value.trim();
+  var lastName = document.getElementById('signupLastName').value.trim();
+  var email = document.getElementById('signupEmail').value.trim().toLowerCase();
   var password = document.getElementById('signupPassword').value;
   var confirmPassword = document.getElementById('signupConfirmPassword').value;
-  var phone = document.getElementById('signupPhone').value;
+  var phone = document.getElementById('signupPhone').value.trim();
   var errorEl = document.getElementById('signupError');
   var submitBtn = this.querySelector('button[type="submit"]');
   errorEl.textContent = '';
 
+  // Validate name lengths
+  if (!firstName || !lastName || firstName.length > 50 || lastName.length > 50) {
+    errorEl.textContent = 'Please enter a valid first and last name (max 50 characters each).';
+    return;
+  }
+
+  // Validate email format
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    errorEl.textContent = 'Please enter a valid email address.';
+    return;
+  }
+
+  // Validate phone
+  if (!/^[+\d\s()\-]{6,30}$/.test(phone)) {
+    errorEl.textContent = 'Please enter a valid phone number.';
+    return;
+  }
+
   if (password !== confirmPassword) {
     errorEl.textContent = 'Passwords do not match.';
+    return;
+  }
+
+  // Stronger password requirements
+  if (password.length < 8) {
+    errorEl.textContent = 'Password must be at least 8 characters long.';
+    return;
+  }
+  if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+    errorEl.textContent = 'Password must contain at least one uppercase letter, one lowercase letter, and one number.';
     return;
   }
 

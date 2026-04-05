@@ -98,13 +98,21 @@
     document.getElementById('contactForm').addEventListener('submit', async function(e) {
       e.preventDefault();
 
-      var name = document.getElementById('contactName').value;
-      var email = document.getElementById('contactEmail').value;
-      var message = document.getElementById('contactMessage').value;
+      var name = document.getElementById('contactName').value.trim();
+      var email = document.getElementById('contactEmail').value.trim().toLowerCase();
+      var message = document.getElementById('contactMessage').value.trim();
 
       // Input validation
+      if (!name || !email || !message) {
+        alert('Please fill in all fields.');
+        return;
+      }
       if (name.length > 100 || email.length > 200 || message.length > 2000) {
         alert('Input too long. Please shorten your submission.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Please enter a valid email address.');
         return;
       }
 

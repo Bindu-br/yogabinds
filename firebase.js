@@ -45,6 +45,12 @@ export async function loginUser(email, password) {
 }
 
 export async function signupUser(email, password, profile) {
+  email = String(email || '').trim().toLowerCase();
+  if (profile) {
+    if (profile.firstName) profile.firstName = String(profile.firstName).trim().slice(0, 50);
+    if (profile.lastName) profile.lastName = String(profile.lastName).trim().slice(0, 50);
+    if (profile.phone) profile.phone = String(profile.phone).trim().slice(0, 30);
+  }
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     // Set display name
@@ -105,6 +111,10 @@ export async function googleSignIn() {
 
 // ---- Save Feedback ----
 export async function saveFeedback(name, email, message) {
+  name = String(name || '').trim().slice(0, 100);
+  email = String(email || '').trim().toLowerCase().slice(0, 200);
+  message = String(message || '').trim().slice(0, 2000);
+  if (!name || !email || !message) return false;
   try {
     await addDoc(collection(db, "feedback"), {
       name: name,
@@ -123,6 +133,10 @@ export async function saveFeedback(name, email, message) {
 export async function saveBooking(bookingData) {
   try {
     var user = auth.currentUser;
+    // Sanitize string fields
+    if (bookingData.fullName) bookingData.fullName = String(bookingData.fullName).trim().slice(0, 100);
+    if (bookingData.email) bookingData.email = String(bookingData.email).trim().toLowerCase().slice(0, 200);
+    if (bookingData.phone) bookingData.phone = String(bookingData.phone).trim().slice(0, 30);
     await addDoc(collection(db, "bookings"), {
       ...bookingData,
       uid: user ? user.uid : null,
@@ -165,6 +179,10 @@ export function getCurrentUser() {
 
 // ---- Save Contact Message ----
 export async function saveContact(name, email, message) {
+  name = String(name || '').trim().slice(0, 100);
+  email = String(email || '').trim().toLowerCase().slice(0, 200);
+  message = String(message || '').trim().slice(0, 2000);
+  if (!name || !email || !message) return false;
   try {
     await addDoc(collection(db, "contacts"), {
       name: name,

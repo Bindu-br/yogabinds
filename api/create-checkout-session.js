@@ -10,11 +10,42 @@ module.exports = async function handler(req, res) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
   try {
-    const { plan, fullName, email, phone, classDates } = req.body;
+    var { plan, fullName, email, phone, classDates } = req.body;
 
     // Validate required fields
     if (!plan || !fullName || !email || !phone || !classDates) {
       return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Trim string inputs
+    fullName = String(fullName).trim();
+    email = String(email).trim().toLowerCase();
+    phone = String(phone).trim();
+    plan = String(plan).trim();
+
+    // Validate lengths
+    if (fullName.length > 100 || email.length > 200 || phone.length > 30) {
+      return res.status(400).json({ error: 'Input too long' });
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email address' });
+    }
+
+    // Validate phone (digits, spaces, plus, hyphens, parens only)
+    if (!/^[+\d\s()\-]{6,30}$/.test(phone)) {
+      return res.status(400).json({ error: 'Invalid phone number' });
+    }
+
+    // Validate classDates is an array of date strings
+    if (!Array.isArray(classDates) || classDates.length === 0 || classDates.length > 3) {
+      return res.status(400).json({ error: 'Invalid class dates' });
+    }
+    for (var i = 0; i < classDates.length; i++) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(classDates[i]) || isNaN(Date.parse(classDates[i]))) {
+        return res.status(400).json({ error: 'Invalid class date format' });
+      }
     }
 
     // Define pricing
