@@ -9,8 +9,11 @@ import { loginUser, signupUser, logoutUser, onAuthChange, resetPassword, googleS
 // ---- Friendly error messages ----
 function friendlyAuthError(firebaseError) {
   var msg = String(firebaseError || '');
-  if (msg.includes('invalid-credential') || msg.includes('wrong-password') || msg.includes('user-not-found')) {
-    return 'Invalid email or password. Please try again.';
+  if (msg.includes('user-not-found')) {
+    return "Account doesn't exist, please register.";
+  }
+  if (msg.includes('invalid-credential') || msg.includes('wrong-password')) {
+    return "Account doesn't exist or password is incorrect. Please try again or register.";
   }
   if (msg.includes('email-already-in-use')) {
     return 'An account with this email already exists. Try signing in.';
