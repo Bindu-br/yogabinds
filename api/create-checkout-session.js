@@ -72,7 +72,7 @@ module.exports = async function handler(req, res) {
     // Define pricing
     const plans = {
       intro: { name: 'Introductory Offer — 3 Classes', amount: 2999 },
-      casual: { name: 'Casual Class', amount: 1599 }
+      casual: { name: 'Book a Session', amount: 1599 }
     };
 
     const selectedPlan = plans[plan];

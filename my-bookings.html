@@ -120,7 +120,7 @@
 
       bookings.forEach(function(booking) {
         var classDates = booking.classDates || [];
-        var plan = booking.plan === 'casual' ? 'Casual Class' : 'Introductory Offer';
+        var plan = booking.plan === 'casual' ? 'Book a Session' : 'Introductory Offer';
         var amount = booking.amount || (booking.plan === 'casual' ? '$15.99 AUD' : '$29.99 AUD');
 
         // Check cancellation eligibility for each class date

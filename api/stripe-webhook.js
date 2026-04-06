@@ -147,7 +147,7 @@ async function handler(req, res) {
       } catch (e) { classDates = ''; }
 
       var amount = session.amount_total / 100;
-      var description = plan === 'casual' ? 'Yoga Session — Casual Class' : 'Yoga Sessions — Introductory Offer (3 Classes)';
+      var description = plan === 'casual' ? 'Yoga Session — Book a Session' : 'Yoga Sessions — Introductory Offer (3 Classes)';
 
       // Auto-increment invoice number
       var counterRef = db.collection('counters').doc('invoices');

@@ -299,7 +299,7 @@
         </div>
         <div class="admin-stat-card">
           <div class="stat-number" id="statCasual">-</div>
-          <div class="stat-label">Casual Classes</div>
+          <div class="stat-label">Book a Session</div>
         </div>
         <div class="admin-stat-card">
           <div class="stat-number" id="statFeedback">-</div>
@@ -492,7 +492,7 @@
         bookingsPanel.innerHTML = '<div class="admin-empty">No bookings yet.</div>';
       } else {
         bookingsPanel.innerHTML = bookings.map(function(b) {
-          var planLabel = b.plan === 'intro' ? 'Introductory Offer' : 'Casual Class';
+          var planLabel = b.plan === 'intro' ? 'Introductory Offer' : 'Book a Session';
           var badgeClass = b.plan === 'intro' ? 'intro' : 'casual';
           var dates = escapeHTML(b.classDates ? b.classDates.join(', ') : 'Not specified');
           var date = escapeHTML(b.createdAt ? new Date(b.createdAt.seconds * 1000).toLocaleDateString('en-AU') : '-');
