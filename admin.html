@@ -294,14 +294,6 @@
           <div class="stat-label">Total Bookings</div>
         </div>
         <div class="admin-stat-card">
-          <div class="stat-number" id="statIntro">-</div>
-          <div class="stat-label">Intro Offers</div>
-        </div>
-        <div class="admin-stat-card">
-          <div class="stat-number" id="statCasual">-</div>
-          <div class="stat-label">Book a Session</div>
-        </div>
-        <div class="admin-stat-card">
           <div class="stat-number" id="statFeedback">-</div>
           <div class="stat-label">Feedback</div>
         </div>
@@ -524,11 +516,7 @@
       var contacts = data.contacts || [];
 
       // Stats
-      var introCount = bookings.filter(function(b) { return b.plan === 'intro'; }).length;
-      var casualCount = bookings.filter(function(b) { return b.plan === 'casual'; }).length;
       document.getElementById('statBookings').textContent = bookings.length;
-      document.getElementById('statIntro').textContent = introCount;
-      document.getElementById('statCasual').textContent = casualCount;
       document.getElementById('statFeedback').textContent = feedback.length;
 
       // Render bookings
