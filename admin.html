@@ -297,6 +297,10 @@
           <div class="stat-number" id="statFeedback">-</div>
           <div class="stat-label">Feedback</div>
         </div>
+        <div class="admin-stat-card">
+          <div class="stat-number" id="statContacts">-</div>
+          <div class="stat-label">Contact Messages</div>
+        </div>
       </div>
 
       <!-- Tabs -->
@@ -518,6 +522,7 @@
       // Stats
       document.getElementById('statBookings').textContent = bookings.length;
       document.getElementById('statFeedback').textContent = feedback.length;
+      document.getElementById('statContacts').textContent = contacts.length;
 
       // Render bookings
       var bookingsPanel = document.getElementById('panel-bookings');
