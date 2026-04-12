@@ -11,6 +11,9 @@
     },
     "api/download-invoice.js": {
       "maxDuration": 10
+    },
+    "api/admin-data.js": {
+      "maxDuration": 10
     }
   },
   "headers": [

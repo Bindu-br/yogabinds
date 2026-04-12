@@ -6,6 +6,45 @@
 
 import { loginUser, signupUser, logoutUser, onAuthChange, resetPassword, googleSignIn } from './firebase.js';
 
+// ---- 30-minute session timeout ----
+var SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes in ms
+var _sessionTimer = null;
+
+function startSessionTimer() {
+  clearSessionTimer();
+  sessionStorage.setItem('yogabinds_login_time', String(Date.now()));
+  _sessionTimer = setTimeout(async function() {
+    await logoutUser();
+    sessionStorage.removeItem('yogabinds_login_time');
+    alert('Your session has expired. Please log in again.');
+  }, SESSION_TIMEOUT);
+}
+
+function resumeSessionTimer() {
+  clearSessionTimer();
+  var loginTime = sessionStorage.getItem('yogabinds_login_time');
+  if (!loginTime) return;
+  var elapsed = Date.now() - Number(loginTime);
+  if (elapsed >= SESSION_TIMEOUT) {
+    sessionStorage.removeItem('yogabinds_login_time');
+    logoutUser();
+    return;
+  }
+  var remaining = SESSION_TIMEOUT - elapsed;
+  _sessionTimer = setTimeout(async function() {
+    await logoutUser();
+    sessionStorage.removeItem('yogabinds_login_time');
+    alert('Your session has expired. Please log in again.');
+  }, remaining);
+}
+
+function clearSessionTimer() {
+  if (_sessionTimer) {
+    clearTimeout(_sessionTimer);
+    _sessionTimer = null;
+  }
+}
+
 // ---- Friendly error messages ----
 function friendlyAuthError(firebaseError) {
   var msg = String(firebaseError || '');
@@ -176,10 +215,15 @@ onAuthChange(function(user) {
   if (!btn) return;
 
   if (user) {
+    // Resume session timer if returning to page while logged in
+    resumeSessionTimer();
+
     var name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
     btn.textContent = 'Log out';
     btn.onclick = async function(e) {
       e.preventDefault();
+      clearSessionTimer();
+      sessionStorage.removeItem('yogabinds_login_time');
       await logoutUser();
     };
 
@@ -205,6 +249,8 @@ onAuthChange(function(user) {
     emailEl.textContent = name;
     emailEl.style.display = '';
   } else {
+    clearSessionTimer();
+    sessionStorage.removeItem('yogabinds_login_time');
     btn.textContent = 'Login';
     btn.onclick = function(e) { e.preventDefault(); openLoginModal(); };
     var emailEl = document.getElementById('navUserEmail');
@@ -262,6 +308,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   submitBtn.textContent = 'Signing in...';
   var result = await loginUser(email, password);
   if (result.success) {
+    startSessionTimer();
     closeLoginModal();
     this.reset();
   } else {
@@ -326,6 +373,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     phone: phone
   });
   if (result.success) {
+    startSessionTimer();
     closeSignupModal();
     this.reset();
   } else {
@@ -365,6 +413,7 @@ document.getElementById('googleSignInBtn').addEventListener('click', async funct
   errorEl.textContent = '';
   var result = await googleSignIn();
   if (result.success) {
+    startSessionTimer();
     closeLoginModal();
   } else {
     errorEl.textContent = friendlyAuthError(result.error);
@@ -376,6 +425,7 @@ document.getElementById('googleSignUpBtn').addEventListener('click', async funct
   errorEl.textContent = '';
   var result = await googleSignIn();
   if (result.success) {
+    startSessionTimer();
     closeSignupModal();
   } else {
     errorEl.textContent = friendlyAuthError(result.error);
