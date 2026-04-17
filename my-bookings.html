@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My Bookings | YogaBinds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -18,7 +22,7 @@
         <li><a href="contact.html">Contact</a></li>
         <li><a href="#" class="btn btn-primary btn-small" id="loginBtn" onclick="openLoginModal(event)">Login</a></li>
       </ul>
-      <button class="hamburger" id="hamburger" onclick="toggleNav()">
+      <button class="hamburger" id="hamburger" onclick="toggleNav()" aria-label="Toggle navigation menu">
         <span></span>
         <span></span>
         <span></span>
@@ -80,7 +84,7 @@
     </div>
   </footer>
 
-  <script src="auth.js"></script>
+  <script src="auth.js" defer></script>
   <script type="module" src="auth-module.js"></script>
   <script type="module">
     import { onAuthChange, getUserBookings, cancelBooking, getAuthToken } from './firebase.js';
