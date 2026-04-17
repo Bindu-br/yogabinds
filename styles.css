@@ -20,7 +20,7 @@
   --off-white: #fafcfb;
   --text-primary: #1a3a2a;
   --text-secondary: #3d6b4e;
-  --text-muted: #6b9e7a;
+  --text-muted: #4a7c5c;
   --text-light: #a8cdb5;
   --accent: #2d5e3f;
   --accent-hover: #1a3a2a;
@@ -393,7 +393,8 @@ section {
   padding: 5px 12px;
 }
 
-.hero-pricing-card h4 {
+.hero-pricing-card h4,
+.hero-pricing-card .pricing-card-title {
   font-family: var(--font-heading);
   font-size: 1rem;
   font-weight: 700;
