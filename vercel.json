@@ -1,4 +1,7 @@
 {
+  "rewrites": [
+    { "source": "/((?!maintenance\\.html).*)", "destination": "/maintenance.html" }
+  ],
   "functions": {
     "api/create-checkout-session.js": {
       "maxDuration": 10
